@@ -83,12 +83,12 @@ function Markup:Parse(root, parent)
 end
 
 function Markup:AddStyles(s)
-  for class, content in s:gmatch('.(%w+).*{(.*)}') do
-    --Spring.Echo(s, class, content)
+  for class, content in s:gmatch('.(%w+).-{(.-)}') do
+    -- Spring.Echo(s, class, content)
     if not self.styles[class] then self.styles[class] = {} end
-    for key, val in content:gmatch('(%w+)%s*:%s*(%w+)%s*') do
+    for key, val in content:gmatch('([^%s]-):%s*(.-)%s*;') do
       self.styles[class][key] = val
-      -- Spring.Echo(class, key.. ' = '.. val)
+      Spring.Echo(class, key.. ' = '.. val)
     end
   end
 end
