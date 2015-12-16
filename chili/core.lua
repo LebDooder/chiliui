@@ -42,6 +42,7 @@ local includes = {
   "controls/tabbaritem.lua",
   "controls/tabbar.lua",
   "controls/tabpanel.lua",
+  "controls/markup.lua",
 }
 
 local Chili = widget
