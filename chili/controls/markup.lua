@@ -89,15 +89,15 @@ function Markup:AddStyles(s)
     sel = sel:match('%w+') or sel
     if not self.styles[sel] then self.styles[sel] = {} end
     for key, val in content:gmatch('([^%s]-):%s*(.-)%s*;') do
-      -- if val:match('{.-}') then
-      --   self.styles[sel][key] = {}
-      --   for tKey, tVal in val:gmatch('[{,]*%s*(.-)[,}]') do
-      --     Spring.Echo(key..', '..tKey ..' = ' .. tVal)
-      --     self.styles[sel][key][tKey]= tVal
-      --   end
-      -- else
+      if val:match(',') then
+        local vTable = {}
+        for tVal in val:gmatch('(%w+)') do
+          vTable[#vTable + 1]= tonumber(tVal)
+        end
+        self.styles[sel][key] = vTable
+      else
         self.styles[sel][key] = val
-      -- end -- add ability to parse tables to css
+      end
     end
   end
 end
