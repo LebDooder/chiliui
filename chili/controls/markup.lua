@@ -43,15 +43,17 @@ end
 
 function Markup:BuildChili(tag, obj)
   -- Merge obj with styles
-  for k, v in pairs(self.styles[obj.class] or {}) do
-    obj[k] = v
-  end
+  local styles = self.styles
+  for k, v in pairs(styles[tag] or {}) do obj[k] = v end       -- Elements
+  for k, v in pairs(styles[obj.class] or {}) do obj[k] = v end -- Classes
+  for k, v in pairs(styles[obj.name] or {}) do obj[k] = v end  -- ID
 
   -- will need to replace
   local Class = self.tags[tag]
   if not Class then
     return Control:New(obj)
   end
+
   return Class:New(obj)
 end
 
@@ -75,20 +77,27 @@ function Markup:Parse(root, parent)
 
     if self:type(k,v) == 'element' then
       if v._tag:lower() =='style' then self:AddStyles(v[1]) end
-      local control = self:BuildChili(v._tag, v._attr)
-      parent:AddChild(control)
-      self:Parse(v, control)
+      v._attr.parent = parent
+      self:Parse(v, self:BuildChili(v._tag, v._attr))
     end
   end
 end
 
 function Markup:AddStyles(s)
-  for class, content in s:gmatch('.(%w+).-{(.-)}') do
-    -- Spring.Echo(s, class, content)
-    if not self.styles[class] then self.styles[class] = {} end
+  for sel, content in s:gmatch('(.-){(.-)}') do
+    -- grabs all selectors, ignores stacking selectors for now
+    sel = sel:match('%w+') or sel
+    if not self.styles[sel] then self.styles[sel] = {} end
     for key, val in content:gmatch('([^%s]-):%s*(.-)%s*;') do
-      self.styles[class][key] = val
-      Spring.Echo(class, key.. ' = '.. val)
+      -- if val:match('{.-}') then
+      --   self.styles[sel][key] = {}
+      --   for tKey, tVal in val:gmatch('[{,]*%s*(.-)[,}]') do
+      --     Spring.Echo(key..', '..tKey ..' = ' .. tVal)
+      --     self.styles[sel][key][tKey]= tVal
+      --   end
+      -- else
+        self.styles[sel][key] = val
+      -- end -- add ability to parse tables to css
     end
   end
 end
